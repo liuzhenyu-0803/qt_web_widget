@@ -64,6 +64,18 @@ WebWidget::~WebWidget()
     delete d;
 }
 
+bool WebWidget::isWebView2RuntimeInstalled()
+{
+    LPWSTR versionInfo = nullptr;
+    HRESULT hr = GetCoreWebView2BrowserVersionInfo(nullptr, &versionInfo);
+    if (SUCCEEDED(hr) && versionInfo != nullptr)
+    {
+        CoTaskMemFree(versionInfo);
+        return true;
+    }
+    return false;
+}
+
 void WebWidget::showEvent(QShowEvent *event)
 {
     QWidget::showEvent(event);

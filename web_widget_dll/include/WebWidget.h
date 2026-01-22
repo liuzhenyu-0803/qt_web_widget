@@ -15,6 +15,12 @@ public:
     explicit WebWidget(QWidget *parent = nullptr);
     ~WebWidget();
 
+    /**
+     * @brief 检查系统是否已安装 Microsoft Edge WebView2 Runtime
+     * @return 如果已安装返回 true，否则返回 false
+     */
+    static bool isWebView2RuntimeInstalled();
+
     void navigate(const QString &url);
     void goBack();
     void goForward();
