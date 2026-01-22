@@ -2,6 +2,8 @@
 #include "web_widget.h"
 #include <QMessageBox>
 
+using WebWidgetLib::WebWidget;
+
 MainWindow::MainWindow(QWidget *parent)
     : QWidget(parent)
     , mainLayout(nullptr)

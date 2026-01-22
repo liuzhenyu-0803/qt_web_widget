@@ -7,7 +7,10 @@
 #include <QPushButton>
 #include <QHBoxLayout>
 
-class WebWidget;
+namespace WebWidgetLib
+{
+    class WebWidget;
+}
 
 class MainWindow : public QWidget
 {
@@ -33,7 +36,7 @@ private:
     QPushButton *forwardButton;
     QPushButton *refreshButton;
     QPushButton *goButton;
-    WebWidget *webWidget;
+    WebWidgetLib::WebWidget *webWidget;
 };
 
 #endif // MAIN_WINDOW_H

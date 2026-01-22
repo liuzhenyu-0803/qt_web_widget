@@ -4,40 +4,45 @@
 #include "web_widget_dll_export.h"
 #include <QWidget>
 
-// 前置声明，避免在头文件中包含 WebView2.h 和 wrl.h
-struct WebWidgetPrivate;
-
-class WEB_WIDGET_DLL_API WebWidget : public QWidget
+namespace WebWidgetLib
 {
-    Q_OBJECT
 
-public:
-    explicit WebWidget(QWidget *parent = nullptr);
-    ~WebWidget();
+    // 前置声明，避免在头文件中包含 WebView2.h 和 wrl.h
+    struct WebWidgetPrivate;
 
-    /**
-     * @brief 检查系统是否已安装 Microsoft Edge WebView2 Runtime
-     * @return 如果已安装返回 true，否则返回 false
-     */
-    static bool isWebView2RuntimeInstalled();
+    class WEB_WIDGET_DLL_API WebWidget : public QWidget
+    {
+        Q_OBJECT
 
-    void navigate(const QString &url);
-    void goBack();
-    void goForward();
-    void refresh();
-    bool canGoBack() const;
-    bool canGoForward() const;
+    public:
+        explicit WebWidget(QWidget *parent = nullptr);
+        ~WebWidget();
 
-protected:
-    void resizeEvent(QResizeEvent *event) override;
-    void showEvent(QShowEvent *event) override;
+        /**
+         * @brief 检查系统是否已安装 Microsoft Edge WebView2 Runtime
+         * @return 如果已安装返回 true，否则返回 false
+         */
+        static bool isWebView2RuntimeInstalled();
 
-private:
-    void initializeWebView();
-    void updateWebViewBounds();
-    void cleanupUserDataFolder(const QString &folderPath);
+        void navigate(const QString &url);
+        void goBack();
+        void goForward();
+        void refresh();
+        bool canGoBack() const;
+        bool canGoForward() const;
 
-    WebWidgetPrivate* d; // PIMPL 模式中的 d-pointer
-};
+    protected:
+        void resizeEvent(QResizeEvent *event) override;
+        void showEvent(QShowEvent *event) override;
+
+    private:
+        void initializeWebView();
+        void updateWebViewBounds();
+        void cleanupUserDataFolder(const QString &folderPath);
+
+        WebWidgetPrivate *d; // PIMPL 模式中的 d-pointer
+    };
+
+} // namespace WebWidgetLib
 
 #endif // WEB_WIDGET_H
