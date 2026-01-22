@@ -39,7 +39,7 @@
 ## 使用示例
 
 ```cpp
-#include "WebWidget.h"
+#include "web_widget.h"
 #include <QMessageBox>
 
 // 1. 推荐先检测环境

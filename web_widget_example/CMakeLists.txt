@@ -18,8 +18,8 @@ find_package(Qt5 REQUIRED COMPONENTS Widgets)
 # 项目源文件
 set(PROJECT_SOURCES
     main.cpp
-    MainWindow.cpp
-    MainWindow.h
+    main_window.cpp
+    main_window.h
 )
 
 # 创建可执行文件
@@ -30,7 +30,7 @@ add_executable(web_widget_example
 # 设置包含目录
 target_include_directories(web_widget_example PRIVATE 
     "${CMAKE_CURRENT_SOURCE_DIR}/../web_widget_dll/include"
-    # 现在不再需要包含 webview2 的路径，因为 WebWidget.h 已经使用了 PIMPL 模式隔离了依赖
+    # 现在不再需要包含 webview2 的路径，因为 web_widget.h 已经使用了 PIMPL 模式隔离了依赖
 )
 
 # 链接 Qt 和 web_widget_dll (纯手动路径模式)

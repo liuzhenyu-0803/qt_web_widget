@@ -1,5 +1,5 @@
-﻿#include "MainWindow.h"
-#include "WebWidget.h"
+﻿#include "main_window.h"
+#include "web_widget.h"
 #include <QMessageBox>
 
 MainWindow::MainWindow(QWidget *parent)

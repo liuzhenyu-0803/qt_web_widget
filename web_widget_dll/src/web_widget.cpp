@@ -1,4 +1,4 @@
-﻿#include "WebWidget.h"
+﻿#include "web_widget.h"
 #include <QResizeEvent>
 #include <QShowEvent>
 #include <QWindow>
@@ -67,7 +67,7 @@ WebWidget::~WebWidget()
 bool WebWidget::isWebView2RuntimeInstalled()
 {
     LPWSTR versionInfo = nullptr;
-    HRESULT hr = GetCoreWebView2BrowserVersionInfo(nullptr, &versionInfo);
+    HRESULT hr = GetAvailableCoreWebView2BrowserVersionString(nullptr, &versionInfo);
     if (SUCCEEDED(hr) && versionInfo != nullptr)
     {
         CoTaskMemFree(versionInfo);

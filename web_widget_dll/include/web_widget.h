@@ -1,5 +1,5 @@
-#ifndef WEBWIDGET_H
-#define WEBWIDGET_H
+#ifndef WEB_WIDGET_H
+#define WEB_WIDGET_H
 
 #include "web_widget_dll_export.h"
 #include <QWidget>
@@ -40,4 +40,4 @@ private:
     WebWidgetPrivate* d; // PIMPL 模式中的 d-pointer
 };
 
-#endif // WEBWIDGET_H
+#endif // WEB_WIDGET_H
