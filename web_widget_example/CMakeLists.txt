@@ -75,6 +75,9 @@ else()
         debug     "${WEB_WIDGET_DLL_BASE_DIR}/Debug/web_widget.lib"
         optimized "${WEB_WIDGET_DLL_BASE_DIR}/Release/web_widget.lib"
     )
+
+    # 添加对 web_widget_dll 的构建依赖，确保 DLL 先于 example 构建完成
+    add_dependencies(web_widget_example web_widget_dll)
     
     # 注意：此时 exe 和 dll 已经由顶层配置生成到了同一个 bin 目录下
     # 因此无需执行 POST_BUILD 拷贝动作。
