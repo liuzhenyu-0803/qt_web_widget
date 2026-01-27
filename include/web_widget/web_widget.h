@@ -1,4 +1,4 @@
-#ifndef WEB_WIDGET_H
+﻿#ifndef WEB_WIDGET_H
 #define WEB_WIDGET_H
 
 #include "web_widget_export.h"

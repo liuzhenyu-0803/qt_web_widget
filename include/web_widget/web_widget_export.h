@@ -1,4 +1,4 @@
-#ifndef WEB_WIDGET_EXPORT_H
+﻿#ifndef WEB_WIDGET_EXPORT_H
 #define WEB_WIDGET_EXPORT_H
 
 #ifdef _WIN32
