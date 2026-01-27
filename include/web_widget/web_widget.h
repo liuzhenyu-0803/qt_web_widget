@@ -1,16 +1,13 @@
 #ifndef WEB_WIDGET_H
 #define WEB_WIDGET_H
 
-#include "web_widget_dll_export.h"
+#include "web_widget_export.h"
 #include <QWidget>
 
 namespace WebWidgetLib
 {
 
-    // 前置声明，避免在头文件中包含 WebView2.h 和 wrl.h
-    struct WebWidgetPrivate;
-
-    class WEB_WIDGET_DLL_API WebWidget : public QWidget
+    class WEB_WIDGET_API WebWidget : public QWidget
     {
         Q_OBJECT
 
@@ -40,7 +37,7 @@ namespace WebWidgetLib
         void updateWebViewBounds();
         void cleanupUserDataFolder(const QString &folderPath);
 
-        WebWidgetPrivate *d; // PIMPL 模式中的 d-pointer
+        struct WebWidgetPrivate *d; // PIMPL 模式中的 d-pointer
     };
 
 } // namespace WebWidgetLib

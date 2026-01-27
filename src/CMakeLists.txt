@@ -8,7 +8,7 @@ set(WEB_WIDGET_SOURCES
 
 set(WEB_WIDGET_HEADERS
     ${PROJECT_SOURCE_DIR}/include/web_widget/web_widget.h
-    ${PROJECT_SOURCE_DIR}/include/web_widget/web_widget_dll_export.h
+    ${PROJECT_SOURCE_DIR}/include/web_widget/web_widget_export.h
 )
 
 # ==============================================================================
@@ -39,7 +39,7 @@ set_target_properties(web_widget PROPERTIES
 )
 
 # 编译定义
-target_compile_definitions(web_widget PRIVATE WEB_WIDGET_DLL_EXPORTS)
+target_compile_definitions(web_widget PRIVATE WEB_WIDGET_EXPORTS)
 
 # ==============================================================================
 # 包含路径设置
