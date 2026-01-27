@@ -1,4 +1,4 @@
-﻿#include "web_widget.h"
+﻿#include "web_widget/web_widget.h"
 #include <QResizeEvent>
 #include <QShowEvent>
 #include <QWindow>

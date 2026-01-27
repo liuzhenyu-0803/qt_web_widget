@@ -1,5 +1,5 @@
 ﻿#include "main_window.h"
-#include "web_widget.h"
+#include "web_widget/web_widget.h"
 #include <QMessageBox>
 
 using WebWidgetLib::WebWidget;
