@@ -22,6 +22,7 @@ namespace WebWidgetLib
     // 定义私有实现类
     struct WebWidgetPrivate
     {
+        WebWidget *q;
         ComPtr<ICoreWebView2Controller> webviewController;
         ComPtr<ICoreWebView2> webview;
         HWND hwnd;
@@ -29,16 +30,22 @@ namespace WebWidgetLib
         QString userDataFolder; // 存储用户数据文件夹路径
         QString pendingUrl;     // 待加载的 URL（当 WebView 未初始化时保存）
 
-        WebWidgetPrivate()
-            : hwnd(nullptr), isInitialized(false)
+        WebWidgetPrivate(WebWidget *owner)
+            : q(owner)
+            , hwnd(nullptr)
+            , isInitialized(false)
         {
         }
+
+        void initializeWebView();
+        void updateWebViewBounds();
+        void cleanupUserDataFolder(const QString &folderPath);
     };
 
     WebWidget::WebWidget(QWidget *parent)
         : QWidget(parent)
     {
-        d = new WebWidgetPrivate();
+        d = new WebWidgetPrivate(this);
 
         // 设置窗口属性，使其能够嵌入原生窗口
         setAttribute(Qt::WA_NativeWindow);
@@ -60,7 +67,7 @@ namespace WebWidgetLib
         // 清理用户数据文件夹（删除缓存）
         if (!d->userDataFolder.isEmpty())
         {
-            cleanupUserDataFolder(d->userDataFolder);
+            d->cleanupUserDataFolder(d->userDataFolder);
         }
 
         delete d;
@@ -84,26 +91,26 @@ namespace WebWidgetLib
 
         if (!d->isInitialized)
         {
-            initializeWebView();
+            d->initializeWebView();
         }
     }
 
-    void WebWidget::initializeWebView()
+    void WebWidgetPrivate::initializeWebView()
     {
-        if (d->isInitialized || !d->hwnd)
+        if (isInitialized || !hwnd)
         {
             return;
         }
 
         // 创建临时用户数据文件夹（用于缓存，程序退出后删除）
         QString tempPath = QStandardPaths::writableLocation(QStandardPaths::TempLocation);
-        d->userDataFolder = tempPath + "/WebWidget_" + QString::number(reinterpret_cast<quint64>(this));
-        QDir().mkpath(d->userDataFolder);
+        userDataFolder = tempPath + "/WebWidget_" + QString::number(reinterpret_cast<quint64>(q));
+        QDir().mkpath(userDataFolder);
 
-        qInfo() << "WebWidget user data folder:" << d->userDataFolder;
+        qInfo() << "WebWidget user data folder:" << userDataFolder;
 
         // 创建 WebView2 环境和控制器，指定用户数据文件夹
-        std::wstring userDataFolderW = d->userDataFolder.toStdWString();
+        std::wstring userDataFolderW = userDataFolder.toStdWString();
         HRESULT hr = CreateCoreWebView2EnvironmentWithOptions(
             nullptr, userDataFolderW.c_str(), nullptr,
             Callback<ICoreWebView2CreateCoreWebView2EnvironmentCompletedHandler>(
@@ -117,7 +124,7 @@ namespace WebWidgetLib
 
                     // 创建 WebView2 控制器
                     env->CreateCoreWebView2Controller(
-                        d->hwnd,
+                        hwnd,
                         Callback<ICoreWebView2CreateCoreWebView2ControllerCompletedHandler>(
                             [this](HRESULT result, ICoreWebView2Controller *controller) -> HRESULT
                             {
@@ -127,15 +134,15 @@ namespace WebWidgetLib
                                     return result;
                                 }
 
-                                d->webviewController = controller;
-                                d->webviewController->get_CoreWebView2(&d->webview);
+                                webviewController = controller;
+                                webviewController->get_CoreWebView2(&webview);
 
                                 // 设置 WebView 大小
                                 updateWebViewBounds();
 
                                 // 设置透明背景色
                                 ComPtr<ICoreWebView2Controller2> controller2;
-                                if (SUCCEEDED(d->webviewController.As(&controller2)))
+                                if (SUCCEEDED(webviewController.As(&controller2)))
                                 {
                                     // RGBA: 透明背景 (alpha = 0)
                                     COREWEBVIEW2_COLOR bgColor = {0, 255, 255, 255}; // Alpha=0 表示透明
@@ -143,9 +150,9 @@ namespace WebWidgetLib
                                 }
 
                                 // 配置新窗口事件处理：在当前页面打开新链接
-                                if (d->webview)
+                                if (webview)
                                 {
-                                    d->webview->add_NewWindowRequested(
+                                    webview->add_NewWindowRequested(
                                         Callback<ICoreWebView2NewWindowRequestedEventHandler>(
                                             [this](ICoreWebView2 *sender, ICoreWebView2NewWindowRequestedEventArgs *args) -> HRESULT
                                             {
@@ -157,9 +164,9 @@ namespace WebWidgetLib
                                                 args->put_Handled(TRUE);
 
                                                 // 在当前 WebView 中导航到目标 URL
-                                                if (d->webview && uri)
+                                                if (webview && uri)
                                                 {
-                                                    d->webview->Navigate(uri);
+                                                    webview->Navigate(uri);
                                                 }
 
                                                 // 释放 URI 字符串
@@ -172,7 +179,7 @@ namespace WebWidgetLib
 
                                     // 禁用缓存：获取 Settings 接口并设置缓存禁用
                                     ComPtr<ICoreWebView2Settings> settings;
-                                    if (SUCCEEDED(d->webview->get_Settings(&settings)))
+                                    if (SUCCEEDED(webview->get_Settings(&settings)))
                                     {
                                         // 注意：WebView2 没有直接禁用所有缓存的 API
                                         // 但可以通过以下方式实现类似效果：
@@ -187,7 +194,7 @@ namespace WebWidgetLib
                                         // 2. 通过导航时添加 Cache-Control 头部实现
                                         // 或使用 ICoreWebView2_2 的 WebResourceRequested 事件
                                         ComPtr<ICoreWebView2_2> webview2;
-                                        if (SUCCEEDED(d->webview.As(&webview2)))
+                                        if (SUCCEEDED(webview.As(&webview2)))
                                         {
                                             // 添加过滤器以拦截所有请求
                                             webview2->AddWebResourceRequestedFilter(
@@ -220,14 +227,14 @@ namespace WebWidgetLib
                                 }
 
                                 // 设置初始化标志
-                                d->isInitialized = true;
+                                isInitialized = true;
 
                                 // 如果有待加载的 URL，立即加载
-                                if (!d->pendingUrl.isEmpty())
+                                if (!pendingUrl.isEmpty())
                                 {
-                                    std::wstring wurl = d->pendingUrl.toStdWString();
-                                    d->webview->Navigate(wurl.c_str());
-                                    d->pendingUrl.clear();
+                                    std::wstring wurl = pendingUrl.toStdWString();
+                                    webview->Navigate(wurl.c_str());
+                                    pendingUrl.clear();
                                 }
 
                                 return S_OK;
@@ -247,17 +254,17 @@ namespace WebWidgetLib
     void WebWidget::resizeEvent(QResizeEvent *event)
     {
         QWidget::resizeEvent(event);
-        updateWebViewBounds();
+        d->updateWebViewBounds();
     }
 
-    void WebWidget::updateWebViewBounds()
+    void WebWidgetPrivate::updateWebViewBounds()
     {
-        if (d->webviewController && d->hwnd)
+        if (webviewController && hwnd)
         {
             // 获取窗口的物理像素尺寸（考虑 DPI 缩放）
             RECT bounds;
-            GetClientRect(d->hwnd, &bounds);
-            d->webviewController->put_Bounds(bounds);
+            GetClientRect(hwnd, &bounds);
+            webviewController->put_Bounds(bounds);
         }
     }
 
@@ -323,7 +330,7 @@ namespace WebWidgetLib
         return false;
     }
 
-    void WebWidget::cleanupUserDataFolder(const QString &folderPath)
+    void WebWidgetPrivate::cleanupUserDataFolder(const QString &folderPath)
     {
         if (folderPath.isEmpty())
         {

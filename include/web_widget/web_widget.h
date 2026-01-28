@@ -33,10 +33,6 @@ namespace WebWidgetLib
         void showEvent(QShowEvent *event) override;
 
     private:
-        void initializeWebView();
-        void updateWebViewBounds();
-        void cleanupUserDataFolder(const QString &folderPath);
-
         struct WebWidgetPrivate *d; // PIMPL 模式中的 d-pointer
     };
 
